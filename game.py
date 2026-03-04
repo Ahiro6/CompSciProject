@@ -1,9 +1,13 @@
 import keyboard
 import stddraw
 import time
+import threading
 
 from player import Player
 from swarm import Swarm
+
+SKY = stddraw.BOOK_LIGHT_BLUE
+DEAD = stddraw.ORANGE
 
 
 class Game:
@@ -11,24 +15,29 @@ class Game:
     def __init__(self, player):
 
         self.player = player
-        self.game_on = False
-
         self.swarms = []
+        self.background = SKY
+        
+        
+        self.game_on = False
+        self.live = False
 
         self.score = 0
         
+        self.thread = threading.Thread(target=self.thread_task)
+        
+
         try:
-            with open('highscore.txt', 'r') as f:
+            with open("highscore.txt", "r") as f:
                 content = f.read()
-                
-                if content.strip() == '':
+
+                if content.strip() == "":
                     self.highscore = 0
                 else:
                     self.highscore = int(content)
-                    
+
         except FileNotFoundError:
             self.highscore = 0
-        
 
     def game_keys(self, last_time=time.time(), cooldown=0.5):
         curr_time = time.time()
@@ -45,7 +54,7 @@ class Game:
         if keyboard.is_pressed("l"):
             self.on_l_pressed()
         if keyboard.is_pressed("esc"):
-            self.game_quit()
+            self.player.take_damage(self.player.health)
 
         keyboard.hook(self.on_released)
 
@@ -54,6 +63,8 @@ class Game:
     def home_keys(self):
         if keyboard.is_pressed("space"):
             self.game_start()
+        if keyboard.is_pressed("delete"):
+            self.quit()
 
     def home(self):
 
@@ -64,7 +75,7 @@ class Game:
         stddraw.setPenColor(stddraw.PINK)
         stddraw.filledRectangle(0.125, 0.75, 0.75, 0.2)
         stddraw.setPenColor(stddraw.BLACK)
-        
+
         stddraw.setFontFamily("Verdana")
         stddraw.setFontSize(24)
         stddraw.text(0.5, 0.9, "Welcome to the Game!")
@@ -72,20 +83,22 @@ class Game:
         stddraw.setFontSize(20)
         stddraw.text(0.5, 0.8, "Shoot Aliens to Win!")
         stddraw.setFontSize(16)
-        
+
         stddraw.text(0.5, 0.7, "Highscore: " + str(self.highscore))
 
         stddraw.setPenColor(stddraw.BOOK_LIGHT_BLUE)
         stddraw.filledRectangle(0.2, 0.15, 0.60, 0.4)
         stddraw.setPenColor(stddraw.BLACK)
-        
+
         stddraw.setFontSize(16)
         stddraw.text(0.5, 0.5, "Controls")
 
         stddraw.text(0.5, 0.4, "Move: [A] - left | [D] - right")
-        stddraw.text(0.5, 0.2 + 0.4/3, "Rotate: [K] - left | [L] - right")
-        stddraw.text(0.5, 0.2 + 0.2/3, "Shoot: [Space]")
-        stddraw.text(0.5, 0.2, "Quit: [esc]")
+        stddraw.text(0.5, 0.35, "Rotate: [K] - left | [L] - right")
+        stddraw.text(0.5, 0.3, "Shoot: [Space]")
+        stddraw.text(0.5, 0.25, "Quit Game: [esc]")
+        stddraw.text(0.5, 0.2, "Close Window: [delete]")
+        
 
         stddraw.setFontSize(20)
         stddraw.text(0.5, 0.05, "Press space to start")
@@ -94,7 +107,7 @@ class Game:
 
         self.game_keys()
 
-        stddraw.clear(stddraw.BOOK_LIGHT_BLUE)
+        stddraw.clear(self.background)
 
         self.game_display()
 
@@ -109,9 +122,11 @@ class Game:
             swarm.move()
             self.score += swarm.is_hit(self.player.projectiles)
             swarm.draw()
-            game_over = swarm.reach_end()
-
-            if game_over:
+            
+            swarm.reach_end(self.player)
+            swarm.ram_player(self.player)
+    
+            if self.player.dead:
                 self.game_quit()
 
     def game_display(self):
@@ -125,11 +140,13 @@ class Game:
 
     def game_over_display(self):
 
+        self.background = DEAD
+        
         stddraw.setPenColor(stddraw.RED)
-        stddraw.filledRectangle(0.5, 0.5, 0.375, 0.125)
+        stddraw.filledRectangle(0.125, 0.4, 0.75, 0.2)
 
-        stddraw.setPenColor(stddraw.DARK_GRAY)
-        stddraw.setFontSize(30)
+        stddraw.setPenColor(stddraw.WHITE)
+        stddraw.setFontSize(50)
         stddraw.text(0.5, 0.5, "GAME OVER")
 
         stddraw.setPenColor(stddraw.BLACK)
@@ -139,37 +156,58 @@ class Game:
         self.player.reset()
         self.swarms = []
         self.score = 0
+        self.background = SKY
+        
+        self.thread = threading.Thread(target=self.thread_task)
 
         self.create_swarm()
 
     def game_quit(self):
-        self.game_on = False
-
-        self.game_over_display()
         
+        self.player.stop()
+        
+        self.game_over_display()
+
         if self.score > self.highscore:
             self.highscore = self.score
-            
-            with open('highscore.txt', 'w') as f:
+
+            with open("highscore.txt", "w") as f:
                 f.write(str(self.highscore))
+                
+        if not self.thread.is_alive():
+            self.thread.start()
+    
+                
+                
+    def thread_task(self):
+        
+        time.sleep(2)
+        
+        self.game_on = False
+        
 
     def start(self):
-        live = True
+        self.live = True
 
-        while live:
+        while self.live:
 
             if self.game_on:
                 self.game()
 
             else:
                 self.home()
-            
+
             stddraw.show(100)
-                        
+            
+    def quit(self):
+        
+        self.live = False
 
     def create_swarm(self):
 
-        swarm = Swarm(n=30, size=0.04, speed_x=0.01, speed_y=0.003, health=1, points=10, damage=10)
+        swarm = Swarm(
+            n=30, size=0.04, speed_x=0.01, speed_y=0.003, health=1, points=10, damage=10
+        )
 
         self.swarms.append(swarm)
 

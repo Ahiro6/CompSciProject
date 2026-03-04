@@ -117,7 +117,10 @@ class Player(Character):
         super().__init__(x, y, speed_x, 0, size, health, damage, speed_proj, angle)
 
     def move(self, direction):
-
+        
+        if self.dead:
+            return
+        
         self.vel_x = -self.speed_x
 
         if direction == "R":
@@ -166,7 +169,16 @@ class Basic(Character):
 
         stddraw.square(self.x, self.y, self.size)
 
-    def reach_end(self):
+    def reach_end(self, player):
 
         if self.y - self.size <= 0.0:
-            return True
+            player.take_damage(player.health)
+        
+    def ram_player(self, player):
+        
+        if self.x + self.size < player.x - player.size or self.x - self.size > player.x + player.size:
+            return
+        elif self.y + self.size < player.y - player.size or self.y - self.size > player.y + player.size:
+            return
+        
+        player.take_damage(player.health)

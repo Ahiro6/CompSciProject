@@ -69,12 +69,15 @@ class Swarm:
         for unit in self.units:
             unit.move()
 
-    def reach_end(self):
+    def reach_end(self, player):
 
         for unit in self.units:
-            if unit.reach_end():
-                return True
-        return False
+            unit.reach_end(player)
+    
+    def ram_player(self, player):
+        
+        for unit in self.units:
+            unit.ram_player(player)
 
     def is_hit(self, projectiles):
 
@@ -88,7 +91,7 @@ class Swarm:
                 if unit.is_hit(projectile):
                     if unit.dead:
                         points += unit.points
-                        dead = i 
+                        dead = i
                         used_projs.append(j)
 
             if not dead == -1:
