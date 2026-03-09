@@ -135,6 +135,7 @@ class Game:
         stddraw.setFontSize(24)
         stddraw.text(0.15, 0.95, "Score: " + str(self.score))
         stddraw.text(0.75, 0.95, "Highscore: " + str(self.highscore))
+        stddraw.text(0.15, 0.05, "Ammo: " + str(self.player.ammo))
 
         stddraw.setPenColor(stddraw.BLACK)
 
@@ -153,7 +154,9 @@ class Game:
 
     def game_start(self):
         self.game_on = True
+        
         self.player.reset()
+    
         self.swarms = []
         self.score = 0
         self.background = SKY

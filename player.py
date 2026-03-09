@@ -1,6 +1,8 @@
 import stddraw
 import math
+import threading
 import time
+
 
 from projectile import Projectile
 
@@ -17,6 +19,8 @@ class Character:
         health,
         damage=0,
         speed_proj=0,
+        ammo=0,
+        speed_reload=0,
         angle=math.pi / 2,
     ):
 
@@ -34,11 +38,16 @@ class Character:
         self.vel_y = 0
 
         self.damage = damage
-
         self.speed_proj = speed_proj
         self.angle = angle
-
+        
+        self.max_ammo = ammo
+        self.ammo = ammo
+        self.speed_reload = speed_reload
+        
         self.projectiles = []
+        
+        self.thread = threading.Thread(target=self.reload, daemon=True)
 
         self.dead = False
 
@@ -73,9 +82,27 @@ class Character:
 
     def attack(self, Projectile_Type=Projectile):
 
+        if self.dead:
+            return
+
+        if self.ammo == 0:
+            return
+
         p = Projectile_Type(self.x, self.y, self.speed_proj, self.angle, self.damage)
 
         self.projectiles.append(p)
+        self.ammo -= 1
+        
+    def reload(self):
+        
+        while not self.dead:
+        
+            if self.ammo == self.max_ammo:
+                continue
+            
+            self.ammo += 1
+            
+            time.sleep(1/self.speed_reload)
 
     def is_hit(self, projectile):
         x = projectile.x
@@ -106,15 +133,19 @@ class Character:
         self.vel_x = 0
         self.vel_y = 0
         self.dead = False
+        self.ammo = self.max_ammo
+        
+        self.thread = threading.Thread(target=self.reload, daemon=True)
+        self.thread.start()
 
 
 class Player(Character):
 
     def __init__(
-        self, x, y, speed_x, size, health, damage=0, speed_proj=0, angle=math.pi / 2
+        self, x, y, speed_x, size, health, damage=0, speed_proj=0, ammo=0, speed_reload=0, angle=math.pi / 2
     ):
 
-        super().__init__(x, y, speed_x, 0, size, health, damage, speed_proj, angle)
+        super().__init__(x, y, speed_x, 0, size, health, damage, speed_proj, speed_reload, ammo, angle)
 
     def move(self, direction):
         
@@ -128,6 +159,9 @@ class Player(Character):
 
     def turn(self, change):
 
+        if self.dead:
+            return
+        
         self.angle += change
 
         self.angle = max(min(self.angle, math.pi), 0)

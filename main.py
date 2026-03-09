@@ -16,11 +16,12 @@ def main():
     health = 100
 
     damage = 100
-    speed_proj = 0.1
+    speed_proj = 0.05
     angle = math.pi / 2
+    ammo = 10
 
     player = Player(
-        x, y, speed, size, health, damage=damage, speed_proj=speed_proj, angle=angle
+        x, y, speed, size, health, damage=damage, speed_proj=speed_proj, ammo=ammo, angle=angle
     )
 
     game = Game(player)

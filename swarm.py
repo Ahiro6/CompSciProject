@@ -97,6 +97,8 @@ class Swarm:
             if not dead == -1:
                 self.units.pop(dead)
 
+        projectiles[:] = [projectiles[i] for i in range(len(projectiles)) if i not in used_projs]
+        
         if len(self.units) == 0:
             self.dead = True
 
