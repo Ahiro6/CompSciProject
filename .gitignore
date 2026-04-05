@@ -11,8 +11,9 @@
 !highscore.txt
 
 !requiremnets.txt
-!READEME.md
+!README.md
 
 !.gitignore
 
 !/assets/
+!/assets/**
