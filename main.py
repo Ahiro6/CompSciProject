@@ -4,28 +4,35 @@ import math
 
 from player import Character, Player
 from game import Game
+from projectile import *
+
+from globals import *
 
 
 def main():
 
-    x = 0.5
-    y = 0.075
-
-    speed = 0.05
-    size = 0.05
-    health = 100
-
-    damage = 100
-    speed_proj = 0.05
-    angle = math.pi / 2
-    ammo = 10
-
+    #initiating player character
     player = Player(
-        x, y, speed, size, health, damage=damage, speed_proj=speed_proj, ammo=ammo, angle=angle
+        PLAYER_START_X,
+        PLAYER_START_Y,
+        SPEED,
+        SIZE,
+        HEALTH,
+        ANGULAR_SPEED,
+        DAMAGE,
+        SPEED_PROJECTILE,
+        AMMO,
+        SPEED_RELOAD,
+        ANGLE,
     )
 
-    game = Game(player)
+    #setting window scale and size
+    stddraw.setXscale(START_X, END_X)
+    stddraw.setYscale(START_Y, END_Y)
+    stddraw.setCanvasSize(SCREEN_WIDTH, SCREEN_HEIGHT)
 
+    #initiate and start game application
+    game = Game(player)
     game.start()
 
 

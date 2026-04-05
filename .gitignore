@@ -5,6 +5,8 @@
 !player.py
 !swarm.py
 !projectile.py
+!globals.py
+!powerups.py
 
 !highscore.txt
 
