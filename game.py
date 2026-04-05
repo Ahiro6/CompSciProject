@@ -571,7 +571,7 @@ class Game:
         if not len(self.swarms) == 0:
             return
         
-        # self.wave = 19
+        # self.wave = 29
         self.wave += 1
 
         if self.wave == 1:
@@ -584,6 +584,7 @@ class Game:
             self.create_swarm(1, type=Speedster, grid_mode=False)
             
         else:
+            #sums bumps together to push swarms below the previous one
             bump = 0
             
             if self.wave % 5 == 0:

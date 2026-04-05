@@ -4,11 +4,7 @@ import stddraw
 from picture import Picture
 import time
 
-
 from projectile import *
-
-# TODO Powerups:
-# Bunker
 
 #Creating Powerup image assets
 SPEEDUP_PIC = Picture(PU_SPEEDUP)
@@ -196,19 +192,24 @@ class Health(Powerup):
         super().reverse(player)
 
 """
-Bunker powerup class: TODO
+Bunker powerup class: Spawns a bunker the player can hide behind.
+- Bunker: class of bunker character passed as argument to prevent circular import
 """
-class Bunker(Powerup):
+class BunkerPowerup(Powerup):
 
-    def __init__(self, size, x, y):
+    def __init__(self, size, x, y, Bunker):
 
         super().__init__(size, x, y)
 
         self.pic = BUNKER_PIC
+        self.Bunker = Bunker
 
+    #passes bunker as argument to prevent circular import
     def buff(self, player):
 
         super().buff(player)
+        
+        player.bunker = self.Bunker(player.x, player.y, player.size, player.max_health)
 
     def reverse(self, player):
 

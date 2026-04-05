@@ -1,8 +1,6 @@
 import stddraw
-import keyboard
-import math
 
-from player import Character, Player
+from player import Player
 from game import Game
 from projectile import *
 

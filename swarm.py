@@ -16,7 +16,7 @@ Swarm class: manages all the enemies in the formation
 - grid_mode: decides if enemies move together in a grid or move seperately
 - type_unit: type of character each unit/enemy is
 - dead: dead if all units/enemies are killed
-- gap: space between each unit/enemy in the formation
+- gap: space between each unit/enemy in the formation (left, right, top, bottom)
 - bump: determines the space a formation should be moved down to make space above
 - x_start: x coordinate of first enemy in formation
 - x_end: x coordinate of last enemy in formation
@@ -52,7 +52,7 @@ class Swarm:
         self.x_start = START_X + self.gap + self.size * WIDTH
         self.x_end = self.x_start
         
-        self.y_end = END_Y - (2 * self.size * HEIGHT + self.gap) - self.bump
+        self.y_end = END_Y - (2 * self.size * HEIGHT + self.gap) + self.size * HEIGHT - self.bump
         self.y_start = self.y_end
         
         #generates formation of enemies
@@ -69,8 +69,9 @@ class Swarm:
 
         #creates rows of units
         while len(self.units) < n:
-
-            y = END_Y - (i + 1) * (2 * self.size * HEIGHT + self.gap) - self.bump
+            
+            #y-coordinate of ith row from bottom
+            y = END_Y - (i + 1) * (2 * self.size * HEIGHT + self.gap) + self.size * HEIGHT - self.bump
 
             x = self.x_start
             space = WIDTH
@@ -97,7 +98,7 @@ class Swarm:
             
             i += 1
             
-        self.y_start = END_Y - (i) * (2 * self.size * HEIGHT + self.gap) - self.bump
+        self.y_start = END_Y - (i) * (2 * self.size * HEIGHT + self.gap) + self.size * HEIGHT - self.bump
         
     #updates the state of the swarm
     def update(self):
@@ -205,7 +206,10 @@ class Swarm:
             projectiles = unit.projectiles
 
             for j, projectile in enumerate(projectiles):
-                player.is_hit(projectile)
+                # first checks if projectiles hit the bunker
+                hit = player.bunker is not None and player.bunker.is_hit(projectile)
+                if not hit:
+                    player.is_hit(projectile)
                     
     #calculates the space created by the swarm formation
     def get_bump(self):

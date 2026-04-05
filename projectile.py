@@ -86,6 +86,7 @@ class Projectile:
 """
 Scattershot projectile: When shot spreads out into multiple projectiles
 - scatter_num: number of projectiles after spreading out
+- damage_nerf: nerfs the damage to balance powerup
 """
 class Scattershot(Projectile):
 
@@ -93,9 +94,11 @@ class Scattershot(Projectile):
 
         super().__init__(x, y, speed, angle, damage)
 
+        self.damage_nerf = 0.5
+        
         self.color = stddraw.GRAY
         self.radius = 0.01 * FACTOR
-        self.damage = damage * 0.5
+        self.damage = damage * self.damage_nerf
 
         self.scatter_num = scatter_num
 
@@ -118,12 +121,13 @@ class Scattershot(Projectile):
         while i > 0:
             angle += math.pi / (2 * self.scatter_num)
 
+            #multiply with inverse of damage nerf to counter act double nerf
             r = Scattershot(
                 self.x,
                 self.y,
                 self.speed,
                 self.angle + angle,
-                self.damage,
+                self.damage * (1/self.damage_nerf),
                 self.scatter_num - 1,
             )
             l = Scattershot(
@@ -131,7 +135,7 @@ class Scattershot(Projectile):
                 self.y,
                 self.speed,
                 self.angle - angle,
-                self.damage,
+                self.damage * (1/self.damage_nerf),
                 self.scatter_num - 1,
             )
 

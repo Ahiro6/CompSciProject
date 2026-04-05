@@ -3,6 +3,7 @@ import math
 import threading
 import time
 import random
+import stdaudio
 
 from picture import Picture
 
@@ -10,7 +11,6 @@ from globals import *
 
 from projectile import *
 from powerups import *
-import stdaudio
 
 #Character image assets
 HERO_PIC = Picture(HERO)
@@ -198,7 +198,7 @@ class Character:
         if self.dead:
             return
         
-        if self.ammo == self.max_ammo:
+        if self.ammo >= self.max_ammo:
             return
 
         self.reloading = True
@@ -249,11 +249,35 @@ class Character:
         self.health = max(self.health, 0)
 
 """
+Bunker class: Spawns when powerup collected, provides cover for player
+- health_factor: factor the health is increased by
+- size_factor: factor the size is increased by
+
+Note: health and size before factor will be equal to player health and size
+"""
+class Bunker(Character):
+    
+    def __init__(self, x, y, size, health, size_factor=3, health_factor=3):
+        
+        super().__init__(x, y, 0, 0, size, health*health_factor)
+        
+        self.health_factor = health_factor
+        self.size = size * size_factor
+        self.size_factor = size_factor
+        
+    def draw(self):
+        
+        # super().draw()
+        
+        stddraw.square(self.x, self.y, self.size)
+
+"""
 The Player class: character controller by user
 - shoot_delay: delay between when projectiles can shoot
 - org_shoot_delay: applicable for when debuffing
 - org_Projectile_Type: applicable for when debuffing
 - powerup: current collected powerup
+- bunker: whether player has active bunker, received by powerup
 """
 class Player(Character):
 
@@ -297,6 +321,7 @@ class Player(Character):
         self.pic = HERO_PIC
 
         self.powerup = None
+        self.bunker = None
 
     #sets velocity based on given direction
     def move(self, direction):
@@ -320,7 +345,7 @@ class Player(Character):
         if direction == "R":
             self.angular_vel = -self.angular_speed
 
-    #extended to draw the graphics of the turret for the player
+    #extended to draw the graphics of the turret and bunker for the player
     def draw(self):
 
         x_len = 2 * self.size * math.cos(self.angle)
@@ -335,16 +360,25 @@ class Player(Character):
         
         super().draw()
         
-
+        if self.bunker:
+            self.bunker.draw()
+        
     #updates the state of the player
     def update(self):
 
         super().update()
 
+        #handles the state of the bunker
+        if self.bunker:
+            #removes bunker if destroyed/dead
+            if self.bunker.dead:
+                self.bunker = None
+        
         #handles the state of the powerups
         if self.powerup:
             self.powerup.set_expired()
             
+            #removes powerup if expired
             if self.powerup.expired:
                 self.powerup.reverse(self)
                 self.powerup = None
@@ -365,19 +399,26 @@ class Player(Character):
         
         super().start_reload()
         
-        play_sound(S_RELOAD)
-    
+        if self.ammo < self.max_ammo:
+            play_sound(S_RELOAD)
+        
     #resets character to starting attributes
     def reset(self):
 
         self.health = self.max_health
-        self.projectiles = []
+        
         self.vel_x = 0
         self.vel_y = 0
+        
         self.dead = False
+        
+        self.projectiles = []
         self.ammo = self.max_ammo
         self.Projectile_Type = self.org_Projectile_Type
         self.shoot_delay = self.org_shoot_delay
+        
+        self.bunker = None
+        self.powerup = None
 
     #resets effects of all powerup buffs
     #used when new powerup is collected before old one is expired
@@ -468,7 +509,7 @@ class Basic(Character):
                 self.size * 0.75, self.x, self.y, Projectile_Type=Area, pic=AREA_PIC
             )
         elif opt_prob < 3.0 / num_powerups:
-            powerup = Bunker(self.size * 0.75, self.x, self.y)
+            powerup = BunkerPowerup(self.size * 0.75, self.x, self.y, Bunker)
         elif opt_prob < 4.0 / num_powerups:
             powerup = Health(self.size * 0.75, self.x, self.y)
         else:
