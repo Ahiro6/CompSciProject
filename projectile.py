@@ -46,12 +46,6 @@ class Projectile:
 
     #draws the graphics for the projectile
     def draw(self):
-        # stddraw.setPenColor(self.color)
-        # stddraw.setPenRadius(self.radius)
-        # stddraw.point(self.x, self.y)
-        # stddraw.setPenColor(stddraw.BLACK)
-        # stddraw.setPenRadius(stddraw._DEFAULT_PEN_RADIUS)
-
         stddraw.picture(self.pic, self.x, self.y, self.radius*5, self.radius*5)
 
     #updates the state of the projectile

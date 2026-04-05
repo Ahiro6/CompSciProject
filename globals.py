@@ -35,6 +35,7 @@ TANK = "./assets/img/Characters/Tank_.png"
 BOMBER = "./assets/img/Characters/Bomber_.png"
 BASIC = "./assets/img/Characters/Basic_.png"
 HERO = "./assets/img/Characters/Hero_.png"
+STAFF = "./assets/img/Characters/Staff_.png"
 
 #Powerups
 PU_SPEEDUP = "./assets/img/Powerups/powerup_speedup.png"

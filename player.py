@@ -14,6 +14,7 @@ import stdaudio
 
 #Character image assets
 HERO_PIC = Picture(HERO)
+STAFF_PIC = Picture(STAFF)
 BASIC_PIC = Picture(BASIC)
 SPEEDSTER_PIC = Picture(SPEEDSTER)
 BOMBER_PIC = Picture(BOMBER)
@@ -49,6 +50,8 @@ Character parent class for all characters:
 - pic: image asset
 - dead: if character is dead (health = 0)
 - last_shot: tracks last time character reloaded or shot projectile (if applicable)
+
+Note: Hitbox of all characters is a square with a center at (x, y)
 """
 class Character:
 
@@ -128,9 +131,6 @@ class Character:
     #draws the graphics of the character and its projectiles
     def draw(self):
         
-        # stddraw.square(self.x, self.y, self.size)
-        stddraw.picture(self.pic, self.x, self.y, w=self.size * 3, h=self.size * 3)
-
         if self.projectiles:
             p = self.projectiles[-1]
             if p.x > END_X or p.x < START_X or p.y > END_Y or p.y < START_Y:
@@ -138,6 +138,8 @@ class Character:
 
             for i in self.projectiles:
                 i.draw()
+                
+        stddraw.picture(self.pic, self.x, self.y, w=self.size * 3, h=self.size * 3)
 
     #updates the state of the character and its bullets
     def update(self):
@@ -180,8 +182,11 @@ class Character:
         if self.ammo == 0 or self.reloading:
             return
 
+        x_len = 2 * self.size * math.cos(self.angle)
+        y_len = 2 * self.size * math.sin(self.angle)
+
         p = self.Projectile_Type(
-            self.x, self.y, self.speed_proj, self.angle, self.damage
+            self.x + x_len, self.y + y_len, self.speed_proj, self.angle, self.damage
         )
         p.add(self.projectiles)
 
@@ -318,12 +323,18 @@ class Player(Character):
     #extended to draw the graphics of the turret for the player
     def draw(self):
 
-        super().draw()
-
         x_len = 2 * self.size * math.cos(self.angle)
         y_len = 2 * self.size * math.sin(self.angle)
 
+        stddraw.setPenColor(stddraw.BOOK_RED)
+        stddraw.setPenRadius(0.015)
         stddraw.line(self.x, self.y, self.x + x_len, self.y + y_len)
+        stddraw.setPenRadius(stddraw._DEFAULT_PEN_RADIUS)
+        
+        stddraw.picture(STAFF_PIC, self.x + x_len, self.y + y_len, self.size, self.size)
+        
+        super().draw()
+        
 
     #updates the state of the player
     def update(self):
