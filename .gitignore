@@ -15,4 +15,4 @@
 
 !.gitignore
 
-!assets
+!/assets/

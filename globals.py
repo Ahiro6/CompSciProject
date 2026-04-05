@@ -2,8 +2,8 @@ import math
 import threading
 import stdaudio
 
-#Game Constants
-#Factor to be modified to scale al globals
+#Game Constants and global functions
+#Factor to be modified to scale all globals
 #Globals also used to scale positions and speed in game
 FACTOR = 1.5
 
