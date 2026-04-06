@@ -19,11 +19,11 @@ BASIC_PIC = Picture(BASIC)
 SPEEDSTER_PIC = Picture(SPEEDSTER)
 BOMBER_PIC = Picture(BOMBER)
 TANK_PIC = Picture(TANK)
+BUNKER_PIC = Picture(BUNKER)
 
 #Projectile powerup image assets
 SCATTERSHOT_PIC = Picture(PU_SCATTERSHOT)
 AREA_PIC = Picture(PU_AREA)
-
 
 """
 Character parent class for all characters:
@@ -265,12 +265,12 @@ class Bunker(Character):
         self.size = size * size_factor
         self.size_factor = size_factor
         
+        self.pic = BUNKER_PIC
+        
     def draw(self):
         
-        # super().draw()
+        super().draw()
         
-        stddraw.square(self.x, self.y, self.size)
-
 """
 The Player class: character controller by user
 - shoot_delay: delay between when projectiles can shoot
@@ -348,6 +348,9 @@ class Player(Character):
     #extended to draw the graphics of the turret and bunker for the player
     def draw(self):
 
+        if self.bunker:
+            self.bunker.draw()
+            
         x_len = 2 * self.size * math.cos(self.angle)
         y_len = 2 * self.size * math.sin(self.angle)
 
@@ -359,9 +362,6 @@ class Player(Character):
         stddraw.picture(STAFF_PIC, self.x + x_len, self.y + y_len, self.size, self.size)
         
         super().draw()
-        
-        if self.bunker:
-            self.bunker.draw()
         
     #updates the state of the player
     def update(self):

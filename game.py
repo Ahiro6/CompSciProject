@@ -19,6 +19,7 @@ LOGO_PIC = Picture(LOGO)
 BULLET_PIC = Picture(ICON_BULLET)
 HEART_PIC = Picture(ICON_HEART)
 RELOAD_PIC = Picture(ICON_RELOAD)
+PAUSE_PIC = Picture(ICON_PAUSE)
 
 """
 Game: handles all game processes
@@ -33,7 +34,8 @@ Game: handles all game processes
 - score: current score of active game
 - highscore: best score achieved so far
 - wave: current wave game is on
-- thread: executes game over piece
+- thread: executes game over process
+- pause: stops/pauses the game by preventing updates for all objects
 """
 class Game:
 
@@ -50,6 +52,7 @@ class Game:
 
         self.game_on = False
         self.live = False
+        self.pause = False
 
         self.score = 0
 
@@ -75,26 +78,30 @@ class Game:
 
         if stddraw.hasNextKeyTyped():
             key = stddraw.nextKeyTyped()
-            if key == "a":
-                self.on_a_pressed()
-            if key == "d":
-                self.on_d_pressed()
-            if key == " ":
-                self.on_space_pressed()
-            if key == "j":
-                self.on_j_pressed()
-            if key == "l":
-                self.on_l_pressed()
-            if key == "s":
-                self.on_s_pressed()
-            if key == "k":
-                self.on_k_pressed()
-            if key == "r":
-                self.on_r_pressed()
+            #prevent certain actions when paused, but allow others
+            if not self.pause:
+                if key == "a":
+                    self.on_a_pressed()
+                if key == "d":
+                    self.on_d_pressed()
+                if key == " ":
+                    self.on_space_pressed()
+                if key == "j":
+                    self.on_j_pressed()
+                if key == "l":
+                    self.on_l_pressed()
+                if key == "s":
+                    self.on_s_pressed()
+                if key == "k":
+                    self.on_k_pressed()
+                if key == "r":
+                    self.on_r_pressed()
             if key == "\x1b":
                 self.player.take_damage(self.player.health)
             if key == "\x7f":
                 self.quit()
+            if key == "p":
+                self.pause = not self.pause
 
     #handles keybinds for home menu
     def home_keys(self):
@@ -229,34 +236,35 @@ class Game:
             START_X + (start_x) * WIDTH,
             START_Y + (start_y) * HEIGHT,
             0.7 * WIDTH,
-            0.5 * HEIGHT,
+            0.55 * HEIGHT,
         )
         stddraw.setPenColor(stddraw.DARK_GRAY)
         stddraw.filledRectangle(
             START_X + (start_x + 0.0125) * WIDTH,
             START_Y + (start_y + 0.0125) * HEIGHT,
             0.675 * WIDTH,
-            0.475 * HEIGHT,
+            0.525 * HEIGHT,
         )
 
         stddraw.setPenColor(stddraw.WHITE)
 
         stddraw.setFontSize(FONT_SIZE)
-        stddraw.text(CENTER_X, START_Y + (start_y + 0.05 * 9) * HEIGHT, "Controls")
+        stddraw.text(CENTER_X, START_Y + (start_y + 0.05 * 10) * HEIGHT, "Controls")
 
         stddraw.setFontSize(int(FONT_SIZE*0.8))
         stddraw.text(
             CENTER_X,
-            START_Y + (start_y + 0.05 * 7) * HEIGHT,
+            START_Y + (start_y + 0.05 * 8) * HEIGHT,
             "Move: [A] - left | [S] - stop | [D] - right",
         )
         stddraw.text(
             CENTER_X,
-            START_Y + (start_y + 0.05 * 6) * HEIGHT,
+            START_Y + (start_y + 0.05 * 7) * HEIGHT,
             "Rotate: [J] - left | [K] -stop | [L] - right",
         )
-        stddraw.text(CENTER_X, START_Y + (start_y + 0.05 * 5) * HEIGHT, "Reload: [R]")
-        stddraw.text(CENTER_X, START_Y + (start_y + 0.05 * 4) * HEIGHT, "Shoot: [Space]")
+        stddraw.text(CENTER_X, START_Y + (start_y + 0.05 * 6) * HEIGHT, "Reload: [R]")
+        stddraw.text(CENTER_X, START_Y + (start_y + 0.05 * 5) * HEIGHT, "Shoot: [Space]")
+        stddraw.text(CENTER_X, START_Y + (start_y + 0.05 * 4) * HEIGHT, "Pause: [P]")
         stddraw.text(
             CENTER_X, START_Y + (start_y + 0.05 * 3) * HEIGHT, "Quit Game: [esc]"
         )
@@ -270,13 +278,13 @@ class Game:
             START_X + (start_x) * WIDTH,
             START_Y + (start_y) * HEIGHT,
             0.7 * WIDTH,
-            0.5 * HEIGHT,
+            0.55 * HEIGHT,
         )
         stddraw.rectangle(
             START_X + (start_x + 0.0125) * WIDTH,
             START_Y + (start_y + 0.0125) * HEIGHT,
             0.675 * WIDTH,
-            0.475 * HEIGHT,
+            0.525 * HEIGHT,
         )
 
     #graphics for main screen
@@ -339,46 +347,49 @@ class Game:
         self.game_display()
 
         #handles player updates and drawing
-        self.player.update()
+        if not self.pause:
+            self.player.update()
         self.player.draw()
 
         #handles swarm updates and drawing
-        self.swarms[:] = [i for i in self.swarms if not i.dead] #removes dead swarms
-        for swarm in self.swarms:
+        if not self.pause:
+            self.swarms[:] = [i for i in self.swarms if not i.dead] #removes dead swarms
+            for swarm in self.swarms:
 
-            swarm.move()
-            swarm.update()
+                swarm.move()
+                swarm.update()
 
-            #adds points and handles powerups after swarm is hit
-            points, powerups = swarm.is_hit(self.player.projectiles)
-            self.score += points
-            self.powerups.extend(powerups)
+                #adds points and handles powerups after swarm is hit
+                points, powerups = swarm.is_hit(self.player.projectiles)
+                self.score += points
+                self.powerups.extend(powerups)
 
-            #handles player interaction with swarm
-            swarm.reach_end(self.player)
-            swarm.ram_player(self.player)
-            swarm.hit_player(self.player)
+                #handles player interaction with swarm
+                swarm.reach_end(self.player)
+                swarm.ram_player(self.player)
+                swarm.hit_player(self.player)
 
         for swarm in self.swarms:
 
             swarm.draw()
 
         #handles powerup updates and drawing
-        self.powerups[:] = [i for i in self.powerups if not i.collected and not i.expired] #removes powerups if collected/expired
-        for powerup in self.powerups:
+        if not self.pause:
+            self.powerups[:] = [i for i in self.powerups if not i.collected and not i.expired] #removes powerups if collected/expired
+            for powerup in self.powerups:
 
-            powerup.update()
+                powerup.update()
 
-            #checks if player made contact with powerup
-            hit = False
-            # for projectile in self.player.projectiles:
-                # hit = hit or powerup.is_hit_projectile(projectile)
+                #checks if player made contact with powerup
+                hit = False
+                # for projectile in self.player.projectiles:
+                    # hit = hit or powerup.is_hit_projectile(projectile)
 
-            hit = hit or powerup.is_hit_player(self.player)
+                hit = hit or powerup.is_hit_player(self.player)
 
-            #buffs if player made contact
-            if hit:
-                powerup.buff(self.player)
+                #buffs if player made contact
+                if hit:
+                    powerup.buff(self.player)
 
         for powerup in self.powerups:
 
@@ -396,8 +407,9 @@ class Game:
         
         self.icon(0.0125, 0.8875, f"""Wave: {self.wave}""") #wave counter
         self.icon(0.0125, 0.7875, f"""Score: {self.score}""") #score display
-        
         self.icon(0.0125, 0.6875, f"""Best: {self.highscore}""") # highscore display
+        
+        self.icon(0.65, 0.8875, "Pause: [P]", icon=PAUSE_PIC) #pause option
         
         #indicates if reloading with icon
         ammo_pic = BULLET_PIC
@@ -446,7 +458,7 @@ class Game:
             stddraw.picture(
                 icon, 
                 START_X + (start_x) * WIDTH + 0.05 * HEIGHT, 
-                START_Y + (start_y) + 0.06125 * HEIGHT,
+                START_Y + (start_y) * HEIGHT + 0.05 * HEIGHT,
                 0.075 * HEIGHT,
                 0.075 * HEIGHT,
             )

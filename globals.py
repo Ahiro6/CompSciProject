@@ -36,6 +36,7 @@ BOMBER = "./assets/img/Characters/Bomber_.png"
 BASIC = "./assets/img/Basic_.png"
 HERO = "./assets/img/Characters/Hero_.png"
 STAFF = "./assets/img/Characters/Staff_.png"
+BUNKER = "./assets/img/Characters/Bunker_.png"
 
 #Powerups
 PU_SPEEDUP = "./assets/img/Powerups/powerup_speedup.png"
@@ -60,6 +61,7 @@ P_GREEN = "./assets/img/Projectiles/explosion_green.png"
 ICON_BULLET = "./assets/img/Icons/icon_bullet.png"
 ICON_HEART = "./assets/img/Icons/icon_heart.png"
 ICON_RELOAD = "./assets/img/Icons/icon_reload.png"
+ICON_PAUSE = "./assets/img/Icons/icon_pause.png"
 
 #Sound assets
 S_SHOOT = './assets/sound/shoot'
