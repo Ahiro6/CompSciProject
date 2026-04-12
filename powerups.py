@@ -19,10 +19,10 @@ Powerups parent class:
 - x: x coordinate
 - y: y coordinate
 - speed: y speed that powerups drop at
-- duration: time that powerup lasts
+- duration: time that powerup lasts (only applicable if powerup expires)
 - collected: if collected by hero
 - expired: if duration expired or dropped out of screen
-- started: time that powerup effects started (collected)
+- started: time that powerup effects started (time collected) - (only applicable if powerup expires)
 - pic: powerup picture
 """
 class Powerup:
@@ -53,7 +53,7 @@ class Powerup:
         player.debuff()
         player.powerup = self
 
-    #reverses buffed effects
+    #reverses buffed effects (only implemented in powerups that do expire after duration)
     def reverse(self, player):
 
         pass
@@ -138,7 +138,7 @@ class Powerup:
             self.expired = True
 
 """
-Speedup powerup class: Gives extra ammo and decreases players shooting delay
+Speedup powerup class: Gives extra ammo and decreases players shooting delay, which increases speed player can shoot at
 - org_delay: orginial shooting delay before buff (used when reversing) 
 - org_ammo: orginial ammo before buff (used when reversing) 
 """
@@ -172,6 +172,8 @@ class Speedup(Powerup):
 
 """
 Health powerup class: Increases player's health when collected
+
+Note: Does not expire with duration
 """
 class Health(Powerup):
 
@@ -181,6 +183,7 @@ class Health(Powerup):
 
         self.pic = HEALTH_PIC
 
+    #increases player health with a fraction of the player's max_health
     def buff(self, player):
 
         super().buff(player)
@@ -194,6 +197,9 @@ class Health(Powerup):
 """
 Bunker powerup class: Spawns a bunker the player can hide behind.
 - Bunker: class of bunker character passed as argument to prevent circular import
+
+Note: Does not expire with duration
+
 """
 class BunkerPowerup(Powerup):
 

@@ -33,10 +33,11 @@ FRAME_TIME = 10
 SPEEDSTER = "./assets/img/Characters/Speedster_.png"
 TANK = "./assets/img/Characters/Tank_.png"
 BOMBER = "./assets/img/Characters/Bomber_.png"
-BASIC = "./assets/img/Basic_.png"
+BASIC = "./assets/img/Characters/Basic_.png"
 HERO = "./assets/img/Characters/Hero_.png"
 STAFF = "./assets/img/Characters/Staff_.png"
 BUNKER = "./assets/img/Characters/Bunker_.png"
+BUNKER_LOW = "./assets/img/Characters/Bunker_Low_.png"
 
 #Powerups
 PU_SPEEDUP = "./assets/img/Powerups/powerup_speedup.png"
@@ -64,7 +65,7 @@ ICON_RELOAD = "./assets/img/Icons/icon_reload.png"
 ICON_PAUSE = "./assets/img/Icons/icon_pause.png"
 
 #Sound assets
-S_SHOOT = './assets/sound/shoot'
+S_SHOOT = './assets/sound/shoot_short'
 S_RELOAD = './assets/sound/reload'
 S_HIT1 = './assets/sound/hit1'
 S_HIT2 = './assets/sound/hit2'

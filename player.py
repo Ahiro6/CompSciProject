@@ -20,6 +20,7 @@ SPEEDSTER_PIC = Picture(SPEEDSTER)
 BOMBER_PIC = Picture(BOMBER)
 TANK_PIC = Picture(TANK)
 BUNKER_PIC = Picture(BUNKER)
+BUNKER_LOW_PIC = Picture(BUNKER_LOW)
 
 #Projectile powerup image assets
 SCATTERSHOT_PIC = Picture(PU_SCATTERSHOT)
@@ -240,7 +241,6 @@ class Character:
     def take_damage(self, damage):
 
         self.health -= damage
-        # play_sound(S_HIT1)
         
         #declares dead
         if self.health <= 0:
@@ -270,10 +270,18 @@ class Bunker(Character):
     def draw(self):
         
         super().draw()
+            
+    #extended to check for when bunker health is low
+    def take_damage(self, damage):
         
+        super().take_damage(damage)
+        
+        if self.health <= self.max_health//4:
+            self.pic = BUNKER_LOW_PIC
+            
 """
 The Player class: character controller by user
-- shoot_delay: delay between when projectiles can shoot
+- shoot_delay: delay between when projectiles can shoot as a ratio from reload_time
 - org_shoot_delay: applicable for when debuffing
 - org_Projectile_Type: applicable for when debuffing
 - powerup: current collected powerup
@@ -383,14 +391,14 @@ class Player(Character):
                 self.powerup.reverse(self)
                 self.powerup = None
 
-    #shoots a projectile if not reloading and with a delay
+    #shoots a projectile only if not reloading and if the delay has passed
     def attack(self):
         
         curr_time = time.time()
         
+        #delay is checked to have passed if the period between the current time and the last shot time is greater
         if not self.reloading and (curr_time - self.last_shot) > self.shoot_delay:
             super().attack()
-            # play_sound(S_SHOOT)
 
             self.last_shot = time.time()
     

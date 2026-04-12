@@ -583,9 +583,9 @@ class Game:
         if not len(self.swarms) == 0:
             return
         
-        # self.wave = 29
         self.wave += 1
 
+        # first 4 waves act as tutorial to introduce each enemy
         if self.wave == 1:
             self.create_swarm(16)
         elif self.wave == 2:
@@ -595,18 +595,23 @@ class Game:
         elif self.wave == 4:
             self.create_swarm(1, type=Speedster, grid_mode=False)
             
+        #from wave 5 and on the game actually starts and gets progressively harder
         else:
             #sums bumps together to push swarms below the previous one
             bump = 0
             
+            #speedsters spawn every 5th wave
             if self.wave % 5 == 0:
                 bump = bump + self.create_swarm(min(self.wave//5, 6), type=Speedster, bump=bump, grid_mode=False)
             
+            #bombers spawn every 3rd wave
             if self.wave % 3 == 0:
                 bump = bump + self.create_swarm(min(6, self.wave//3 - 1), type=Bomber, bump=bump)
                 
+            #basics spawn every wave
             bump = bump + self.create_swarm(8 * min(self.wave//5 + 1, 4), bump=bump)
             
+            #tanks spawn every 2nd wave            
             if self.wave % 2 == 0:
                 bump = bump + self.create_swarm(min(6, self.wave//2 - 1), type=Tank, bump=bump)
     

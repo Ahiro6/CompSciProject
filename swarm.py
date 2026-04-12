@@ -2,6 +2,8 @@ from player import Basic
 from globals import *
 import stddraw
 
+#TODO: formation movement: jump down
+
 """
 Swarm class: manages all the enemies in the formation
 - n: number of enemies in formation
@@ -120,15 +122,20 @@ class Swarm:
     #moves the swarm as a grid
     def move_grid(self):
         
-        self.vel_y = -self.speed_y
+        self.vel_y = -self.speed_y #0
         
         if self.vel_x == 0:
             self.vel_x = self.speed_x
         
         if self.x_start <= START_X + self.size * WIDTH:
             self.vel_x = self.speed_x
+            
+            # self.vel_y = - (2*self.size*HEIGHT + self.gap)
+            
         elif self.x_end >= END_X - self.size * WIDTH:
             self.vel_x = -self.speed_x
+            
+            # self.vel_y = - (2*self.size*HEIGHT + self.gap)
         
         self.move_units()
 
