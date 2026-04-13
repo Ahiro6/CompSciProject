@@ -28,6 +28,7 @@ CENTER_Y = (END_Y + START_Y) / 2.0
 
 FRAME_TIME = 10
 
+#TODO: Assets query
 #Image assets
 #Characters
 SPEEDSTER = "./assets/img/Characters/Speedster_.png"

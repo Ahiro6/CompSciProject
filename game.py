@@ -1,7 +1,5 @@
-import keyboard
 import stddraw
 import time
-import math
 import threading
 from picture import Picture
 
