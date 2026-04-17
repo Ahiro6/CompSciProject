@@ -7,7 +7,7 @@ This is a group project for the module **Computer Science 214**
 
 The group number: 53
 
-The group members are:
+The group members are: <br/>
     - AG Mostert (28897722) <br/>
     - LM Edwards (29095174)<br/>
     - S Njoba (29585767)<br/>
@@ -93,19 +93,19 @@ The **files/folders** in this game belong in the following categories:
 
 ### Assets
 
-All assets are found from external sources
+All assets are found from external sources.
 Assets are split up into images and sound:
 
 **Images**:
-1. Background: Generated with ChatGPT
-2. Characters: Generated with ChatGPT
-3. Icons: Generated with Claude
-4. Powerups: Generated with Claude
-5. Projectiles: Generated with ChatGPT
+1. **Background**: Generated with ChatGPT
+2. **Characters**: Generated with ChatGPT
+3. **Icons**: Generated with Claude
+4. **Powerups**: Generated with Claude
+5. **Projectiles**: Generated with ChatGPT
 
 **Sound**: all sound effects in the same folder. All sound effects are downloaded from: https://pixabay.com/sound-effects/
-1. powerup.wav: 8-Bit Powerup by freesound_community
-2. reload.wav: Gun Reload 2 by DRAGON-STUDIO
+1. **powerup.wav**: 8-Bit Powerup by freesound_community
+2. **reload.wav**: Gun Reload 2 by DRAGON-STUDIO
 
 ### TXT file
 
