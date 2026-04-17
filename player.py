@@ -12,7 +12,7 @@ from globals import *
 from projectile import *
 from powerups import *
 
-#Character image assets
+# Character image assets
 HERO_PIC = Picture(HERO)
 STAFF_PIC = Picture(STAFF)
 BASIC_PIC = Picture(BASIC)
@@ -22,7 +22,7 @@ TANK_PIC = Picture(TANK)
 BUNKER_PIC = Picture(BUNKER)
 BUNKER_LOW_PIC = Picture(BUNKER_LOW)
 
-#Projectile powerup image assets
+# Projectile powerup image assets
 SCATTERSHOT_PIC = Picture(PU_SCATTERSHOT)
 AREA_PIC = Picture(PU_AREA)
 
@@ -54,6 +54,8 @@ Character parent class for all characters:
 
 Note: Hitbox of all characters is a square with a center at (x, y)
 """
+
+
 class Character:
 
     def __init__(
@@ -109,29 +111,29 @@ class Character:
         self.reloading = False
         self.last_shot = time.time()
 
-    #sets the velocity and direction of the character
+    # sets the velocity and direction of the character
     def move(self):
 
         pass
 
-    #sets the angular velocity of the character
+    # sets the angular velocity of the character
     def turn(self):
 
         pass
 
-    #stops character from moving
+    # stops character from moving
     def stop(self):
 
         self.vel_x = 0
         self.vel_y = 0
 
-    #stops turret from turning
+    # stops turret from turning
     def stop_angular(self):
         self.angular_vel = 0
 
-    #draws the graphics of the character and its projectiles
+    # draws the graphics of the character and its projectiles
     def draw(self):
-        
+
         if self.projectiles:
             p = self.projectiles[-1]
             if p.x > END_X or p.x < START_X or p.y > END_Y or p.y < START_Y:
@@ -139,10 +141,10 @@ class Character:
 
             for i in self.projectiles:
                 i.draw()
-                
+
         stddraw.picture(self.pic, self.x, self.y, w=self.size * 3, h=self.size * 3)
 
-    #updates the state of the character and its bullets
+    # updates the state of the character and its bullets
     def update(self):
 
         if self.dead:
@@ -150,7 +152,7 @@ class Character:
 
         curr_time = time.time()
 
-        #removes projectiles if exploded/faded
+        # removes projectiles if exploded/faded
         self.projectiles[:] = [p for p in self.projectiles if not p.is_faded()]
 
         self.x += self.vel_x
@@ -158,28 +160,28 @@ class Character:
 
         self.angle += self.angular_vel
 
-        #keeps x, y coordinates on screen
+        # keeps x, y coordinates on screen
         self.x = min(max(self.x, START_X + self.size), END_X - self.size)
         self.y = min(max(self.y, START_Y + self.size), END_Y - self.size)
 
         self.angle = max(min(self.angle, math.pi), 0)
 
-        #handles projectiles
+        # handles projectiles
         if self.projectiles:
             for i in self.projectiles:
                 i.update()
 
-        #handles reloading: reloads after time passed
+        # handles reloading: reloads after time passed
         if self.reloading and (curr_time - self.last_shot) > self.reload_time:
             self.reload()
 
-    #shoots a projectile
+    # shoots a projectile
     def attack(self):
 
         if self.dead:
             return
 
-        #prevents shooting
+        # prevents shooting
         if self.ammo == 0 or self.reloading:
             return
 
@@ -193,19 +195,19 @@ class Character:
 
         self.ammo -= 1
 
-    #starts reloading by beginning time
+    # starts reloading by beginning time
     def start_reload(self):
 
         if self.dead:
             return
-        
+
         if self.ammo >= self.max_ammo:
             return
 
         self.reloading = True
         self.last_shot = time.time()
 
-    #finishes reloading by setting ammo
+    # finishes reloading by setting ammo
     def reload(self):
 
         if not self.dead:
@@ -213,7 +215,7 @@ class Character:
             self.ammo = self.max_ammo
             self.reloading = False
 
-    #checks if character is hit by projectile
+    # checks if character is hit by projectile
     def is_hit(self, projectile):
 
         x = projectile.x
@@ -229,24 +231,25 @@ class Character:
         elif self.y + self.size < y - radius or self.y - self.size > y + radius:
             return False
 
-        #character loses health based on projectile damage
+        # character loses health based on projectile damage
         self.take_damage(projectile.damage)
 
-        #set projectile to explode
+        # set projectile to explode
         projectile.is_hit()
 
         return True
 
-    #gives damage to character
+    # gives damage to character
     def take_damage(self, damage):
 
         self.health -= damage
-        
-        #declares dead
+
+        # declares dead
         if self.health <= 0:
             self.dead = True
-            
+
         self.health = max(self.health, 0)
+
 
 """
 Bunker class: Spawns when powerup collected, provides cover for player
@@ -255,30 +258,41 @@ Bunker class: Spawns when powerup collected, provides cover for player
 
 Note: health and size before factor will be equal to player health and size
 """
+
+
 class Bunker(Character):
-    
-    def __init__(self, x, y, size, health, size_factor=3, health_factor=3):
-        
-        super().__init__(x, y, 0, 0, size, health*health_factor)
-        
+
+    def __init__(
+        self,
+        x,
+        y,
+        size,
+        health,
+        size_factor=B_SIZE_FACTOR,
+        health_factor=B_HEALTH_FACTOR,
+    ):
+
+        super().__init__(x, y, 0, 0, size, health * health_factor)
+
         self.health_factor = health_factor
         self.size = size * size_factor
         self.size_factor = size_factor
-        
+
         self.pic = BUNKER_PIC
-        
+
     def draw(self):
-        
+
         super().draw()
-            
-    #extended to check for when bunker health is low
+
+    # extended to check for when bunker health is low
     def take_damage(self, damage):
-        
+
         super().take_damage(damage)
-        
-        if self.health <= self.max_health//4:
+
+        if self.health <= self.max_health // 4:
             self.pic = BUNKER_LOW_PIC
-            
+
+
 """
 The Player class: character controller by user
 - shoot_delay: delay between when projectiles can shoot as a ratio from reload_time
@@ -287,6 +301,8 @@ The Player class: character controller by user
 - powerup: current collected powerup
 - bunker: whether player has active bunker, received by powerup
 """
+
+
 class Player(Character):
 
     def __init__(
@@ -305,7 +321,7 @@ class Player(Character):
         Projectile_Type=Projectile,
     ):
 
-        #speed_y by default set to zero
+        # speed_y by default set to zero
         super().__init__(
             x,
             y,
@@ -322,7 +338,7 @@ class Player(Character):
             Projectile_Type,
         )
 
-        self.shoot_delay = self.reload_time /4
+        self.shoot_delay = self.reload_time / 4
         self.org_shoot_delay = self.shoot_delay
         self.org_Projectile_Type = Projectile_Type
 
@@ -331,7 +347,7 @@ class Player(Character):
         self.powerup = None
         self.bunker = None
 
-    #sets velocity based on given direction
+    # sets velocity based on given direction
     def move(self, direction):
 
         if self.dead:
@@ -342,7 +358,7 @@ class Player(Character):
         if direction == "R":
             self.vel_x = self.speed_x
 
-    #sets angular_velocity based on given direction
+    # sets angular_velocity based on given direction
     def turn(self, direction):
 
         if self.dead:
@@ -353,12 +369,12 @@ class Player(Character):
         if direction == "R":
             self.angular_vel = -self.angular_speed
 
-    #extended to draw the graphics of the turret and bunker for the player
+    # extended to draw the graphics of the turret and bunker for the player
     def draw(self):
 
         if self.bunker:
             self.bunker.draw()
-            
+
         x_len = 2 * self.size * math.cos(self.angle)
         y_len = 2 * self.size * math.sin(self.angle)
 
@@ -366,76 +382,77 @@ class Player(Character):
         stddraw.setPenRadius(0.015)
         stddraw.line(self.x, self.y, self.x + x_len, self.y + y_len)
         stddraw.setPenRadius(stddraw._DEFAULT_PEN_RADIUS)
-        
+
         stddraw.picture(STAFF_PIC, self.x + x_len, self.y + y_len, self.size, self.size)
-        
+
         super().draw()
-        
-    #updates the state of the player
+
+    # updates the state of the player
     def update(self):
 
         super().update()
 
-        #handles the state of the bunker
+        # handles the state of the bunker
         if self.bunker:
-            #removes bunker if destroyed/dead
+            # removes bunker if destroyed/dead
             if self.bunker.dead:
                 self.bunker = None
-        
-        #handles the state of the powerups
+
+        # handles the state of the powerups
         if self.powerup:
             self.powerup.set_expired()
-            
-            #removes powerup if expired
+
+            # removes powerup if expired
             if self.powerup.expired:
                 self.powerup.reverse(self)
                 self.powerup = None
 
-    #shoots a projectile only if not reloading and if the delay has passed
+    # shoots a projectile only if not reloading and if the delay has passed
     def attack(self):
-        
+
         curr_time = time.time()
-        
-        #delay is checked to have passed if the period between the current time and the last shot time is greater
+
+        # delay is checked to have passed if the period between the current time and the last shot time is greater
         if not self.reloading and (curr_time - self.last_shot) > self.shoot_delay:
             super().attack()
 
             self.last_shot = time.time()
-    
-    #extended to play reload sound
+
+    # extended to play reload sound
     def start_reload(self):
-        
+
         super().start_reload()
-        
+
         if self.ammo < self.max_ammo:
             play_sound(S_RELOAD)
-        
-    #resets character to starting attributes
+
+    # resets character to starting attributes
     def reset(self):
 
         self.health = self.max_health
-        
+
         self.vel_x = 0
         self.vel_y = 0
-        
+
         self.dead = False
-        
+
         self.projectiles = []
         self.ammo = self.max_ammo
         self.Projectile_Type = self.org_Projectile_Type
         self.shoot_delay = self.org_shoot_delay
-        
+
         self.bunker = None
         self.powerup = None
 
-    #resets effects of all powerup buffs
-    #used when new powerup is collected before old one is expired
+    # resets effects of all powerup buffs
+    # used when new powerup is collected before old one is expired
     def debuff(self):
 
         if self.ammo > self.max_ammo:
             self.ammo = self.max_ammo
         self.Projectile_Type = self.org_Projectile_Type
         self.shoot_delay = self.org_shoot_delay
+
 
 """
 Basic class: acts as the normal/basic enemy class and the parent class for other enemy characters
@@ -445,9 +462,13 @@ Basic class: acts as the normal/basic enemy class and the parent class for other
 
 Note: all projectile variables are ignored because its not applicable
 """
+
+
 class Basic(Character):
 
-    def __init__(self, x, y, speed_x, speed_y, size, health, points, powerup_prob=0.1):
+    def __init__(
+        self, x, y, speed_x, speed_y, size, health, points, powerup_prob=E_BASIC_PU
+    ):
         super().__init__(x, y, speed_x, speed_y, size, health)
 
         self.points = points
@@ -457,7 +478,7 @@ class Basic(Character):
 
         self.powerup = None
 
-    #sets enemy velocity if moves on own and not part of grid
+    # sets enemy velocity if moves on own and not part of grid
     def move(self):
 
         self.vel_y = -self.speed_y
@@ -465,7 +486,7 @@ class Basic(Character):
         if self.vel_x == 0:
             self.vel_x = self.speed_x
 
-        #turns character around if reach edge
+        # turns character around if reach edge
         if self.x <= START_X + self.size:
             self.vel_x = self.speed_x
         elif self.x >= END_X - self.size:
@@ -475,13 +496,13 @@ class Basic(Character):
 
         super().draw()
 
-    #kills player to end game when reaches bottom of screen
+    # kills player to end game when reaches bottom of screen
     def reach_end(self, player):
 
         if self.y - self.size <= START_Y:
             player.take_damage(player.health)
 
-    #kills player to end game if enemy collides with player
+    # kills player to end game if enemy collides with player
     def ram_player(self, player):
 
         if (
@@ -497,7 +518,7 @@ class Basic(Character):
 
         player.take_damage(player.health)
 
-    #decides to whether to drop powerup and which
+    # decides to whether to drop powerup and which
     def drop_powerup(self):
 
         num_powerups = 5
@@ -529,7 +550,7 @@ class Basic(Character):
             return powerup
         return None
 
-    #extended from parent to assign powerup when applicable
+    # extended from parent to assign powerup when applicable
     def take_damage(self, damage):
 
         super().take_damage(damage)
@@ -537,10 +558,13 @@ class Basic(Character):
         if self.dead:
             self.powerup = self.drop_powerup()
 
+
 """
 Bomber class: enemy that shoots projectile
 - all required projectile variables added
 """
+
+
 class Bomber(Basic):
 
     def __init__(
@@ -552,11 +576,11 @@ class Bomber(Basic):
         size,
         health,
         points,
-        powerup_prob=0.25,
-        damage=5,
-        speed_proj=0.01,
+        powerup_prob=E_BOMBER_PU,
+        damage=E_DAMAGE,
+        speed_proj=E_SPEED_PROJECTILE,
         ammo=1,
-        reload_time=1.5,
+        reload_time=E_SPEED_RELOAD,
         angle=-math.pi / 2,
         Projectile_Type=GreenProjectile,
     ):
@@ -575,24 +599,27 @@ class Bomber(Basic):
     def draw(self):
         super().draw()
 
-    #updates Bomber state
+    # updates Bomber state
     def update(self):
         super().update()
 
         self.angle = -math.pi / 2
 
-        #handles bomber attacks
+        # handles bomber attacks
         if self.ammo > 0:
             self.attack()
 
         if self.ammo == 0 and not self.reloading:
             self.start_reload()
 
+
 """
 Tank class: enemy with additional armour that can take damage
 - armour_factor: determines armour health 
 - armour_health: armour with multiple of health
 """
+
+
 class Tank(Basic):
 
     def __init__(
@@ -604,8 +631,8 @@ class Tank(Basic):
         size,
         health,
         points,
-        powerup_prob=0.25,
-        armour_factor=3,
+        powerup_prob=E_TANK_PU,
+        armour_factor=E_ARMOUR_FACTOR,
     ):
         super().__init__(x, y, speed_x, speed_y, size, health, points, powerup_prob)
 
@@ -618,7 +645,7 @@ class Tank(Basic):
 
         super().draw()
 
-    #extended from parent to give damage to armour before health
+    # extended from parent to give damage to armour before health
     def take_damage(self, damage):
 
         if self.armour_health > 0:
@@ -627,6 +654,7 @@ class Tank(Basic):
         else:
             super().take_damage(damage)
 
+
 """
 Speedster class: enemy that can moves extra fast and changes direction randomly
 - jerk_prob: probability that speedster changes direction
@@ -634,6 +662,8 @@ Speedster class: enemy that can moves extra fast and changes direction randomly
 - speed_y_factor: factor that speed_y gets increased with
 - speed: acts as speedster if true and a basic if false
 """
+
+
 class Speedster(Basic):
 
     def __init__(
@@ -645,10 +675,10 @@ class Speedster(Basic):
         size,
         health,
         points,
-        powerup_prob=0.5,
-        jerk_prob=0.05,
-        speed_x_factor=6,
-        speed_y_factor=2.5,
+        powerup_prob=E_SPEEDSTER_PU,
+        jerk_prob=E_JERK_PROB,
+        speed_x_factor=E_SPEED_X_FACTOR,
+        speed_y_factor=E_SPEED_Y_FACTOR,
     ):
         super().__init__(x, y, speed_x, speed_y, size, health, points, powerup_prob)
 
@@ -672,7 +702,7 @@ class Speedster(Basic):
 
         # stddraw.picture(self.pic, self.x, self.y, self.size * 4, self.size * 4)
 
-    #determines if speedster should change direction
+    # determines if speedster should change direction
     def random_jerk(self):
 
         prob = random.random()
@@ -680,7 +710,7 @@ class Speedster(Basic):
         if prob < self.jerk_prob:
             self.vel_x = -self.vel_x
 
-    #extended to handle random jerk
+    # extended to handle random jerk
     def move(self):
 
         if self.speed:
@@ -688,7 +718,7 @@ class Speedster(Basic):
 
         super().move()
 
-    #extended to disable speedster on first hit
+    # extended to disable speedster on first hit
     def is_hit(self, projectile):
 
         hit = super().is_hit(projectile)

@@ -5,7 +5,7 @@ from picture import Picture
 
 from globals import *
 
-#Creating projectile image assets
+# Creating projectile image assets
 PROJECTILE_PIC = Picture(PROJECTILE)
 P_SCATTERSHOT_PIC = Picture(P_SCATTERSHOT)
 P_AREA_PIC = Picture(P_AREA)
@@ -25,6 +25,8 @@ Parent projectile class and normal/basic projectile:
 - delay: time projectile takes to disappear after hitting target
 - pic: projectile picture
 """
+
+
 class Projectile:
 
     def __init__(self, x, y, speed, angle, damage):
@@ -44,30 +46,30 @@ class Projectile:
 
         self.pic = PROJECTILE_PIC
 
-    #draws the graphics for the projectile
+    # draws the graphics for the projectile
     def draw(self):
-        stddraw.picture(self.pic, self.x, self.y, self.radius*5, self.radius*5)
+        stddraw.picture(self.pic, self.x, self.y, self.radius * 5, self.radius * 5)
 
-    #updates the state of the projectile
+    # updates the state of the projectile
     def update(self):
         self.x += self.speed * math.cos(self.angle)
         self.y += self.speed * math.sin(self.angle)
-        
-        #removes projectile if out of screen
+
+        # removes projectile if out of screen
         if self.x > END_X or self.x < START_X or self.y > END_Y or self.y < START_Y:
             self.hit_time = time.time()
             self.hit = True
 
-    #starts projectile's being hit process (exploding)
+    # starts projectile's being hit process (exploding)
     def is_hit(self):
 
-        #increase radius to look exploded
+        # increase radius to look exploded
         self.radius *= 2
         self.hit = True
         self.speed = 0
         self.hit_time = time.time()
 
-    #checks if projectile has disappeared after exploding and hitting a target
+    # checks if projectile has disappeared after exploding and hitting a target
     def is_faded(self):
 
         curr_time = time.time()
@@ -77,17 +79,20 @@ class Projectile:
 
         return (curr_time - self.hit_time) > self.delay
 
-    #used to add projectile to its character's projectiles lits
-    #also initiates abilities for certain special projectiles
+    # used to add projectile to its character's projectiles lits
+    # also initiates abilities for certain special projectiles
     def add(self, projectiles):
 
         projectiles.append(self)
+
 
 """
 Scattershot projectile: When shot spreads out into multiple projectiles
 - scatter_num: number of projectiles after spreading out
 - damage_nerf: nerfs the damage to balance powerup
 """
+
+
 class Scattershot(Projectile):
 
     def __init__(self, x, y, speed, angle, damage, scatter_num=5):
@@ -95,7 +100,7 @@ class Scattershot(Projectile):
         super().__init__(x, y, speed, angle, damage)
 
         self.damage_nerf = 0.5
-        
+
         self.color = stddraw.GRAY
         self.radius = 0.01 * FACTOR
         self.damage = damage * self.damage_nerf
@@ -104,30 +109,30 @@ class Scattershot(Projectile):
 
         self.pic = P_SCATTERSHOT_PIC
 
-    #same as parent, but also initiates scatter ability
+    # same as parent, but also initiates scatter ability
     def add(self, projectiles):
 
         super().add(projectiles)
 
         self.scatter(projectiles)
 
-    #initiates scatter ability
+    # initiates scatter ability
     def scatter(self, projectiles):
 
         i = self.scatter_num - 1
         angle = 0
 
-        #adds projectiles left and right of initial center projectile
+        # adds projectiles left and right of initial center projectile
         while i > 0:
             angle += math.pi / (2 * self.scatter_num)
 
-            #multiply with inverse of damage nerf to counter act double nerf
+            # multiply with inverse of damage nerf to counter act double nerf
             r = Scattershot(
                 self.x,
                 self.y,
                 self.speed,
                 self.angle + angle,
-                self.damage * (1/self.damage_nerf),
+                self.damage * (1 / self.damage_nerf),
                 self.scatter_num - 1,
             )
             l = Scattershot(
@@ -135,7 +140,7 @@ class Scattershot(Projectile):
                 self.y,
                 self.speed,
                 self.angle - angle,
-                self.damage * (1/self.damage_nerf),
+                self.damage * (1 / self.damage_nerf),
                 self.scatter_num - 1,
             )
 
@@ -144,10 +149,13 @@ class Scattershot(Projectile):
 
             i -= 2
 
+
 """
 Area projectile class: Creates an area explosion on impact
 - projectiles: the projectiles list the projectile belongs to
 """
+
+
 class Area(Projectile):
 
     def __init__(self, x, y, speed, angle, damage):
@@ -161,7 +169,7 @@ class Area(Projectile):
 
         self.pic = P_AREA_PIC
 
-    #same as parent, but also starts projectile's area ability
+    # same as parent, but also starts projectile's area ability
     def is_hit(self):
         super().is_hit()
 
@@ -173,7 +181,7 @@ class Area(Projectile):
 
         self.projectiles = projectiles
 
-    #initiates area explosion ability by adding multiple projectiles around it
+    # initiates area explosion ability by adding multiple projectiles around it
     def exploded(self):
 
         if self.projectiles is not None:
@@ -216,20 +224,23 @@ class Area(Projectile):
                 self.damage,
             )
 
-            #starts hit process, but resets hit to false, so can hit other targets            
+            # starts hit process, but resets hit to false, so can hit other targets
             t.is_hit(), tl.is_hit(), tr.is_hit(), l.is_hit(), r.is_hit()
             t.hit, tl.hit, tr.hit, l.hit, r.hit = False, False, False, False, False
 
             self.projectiles.extend([t, tl, tr, l, r])
 
+
 """
 GreenProjectile Class: Exact same normal projectile but green
 Note: Used for bomber, easier to differentiate projectiles
 """
+
+
 class GreenProjectile(Projectile):
-    
+
     def __init__(self, x, y, speed, angle, damage):
-        
+
         super().__init__(x, y, speed, angle, damage)
-        
+
         self.pic = P_GREEN_PIC
