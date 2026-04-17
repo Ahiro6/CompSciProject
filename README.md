@@ -12,6 +12,7 @@ The group members are:
     - LM Edwards (29095174)<br/>
     - S Njoba (29585767)<br/>
 
+Github Link: https://github.com/Ahiro6/CompSciProject.git
 
 ---------------------------------------------------------------------------------
 
